@@ -21,6 +21,8 @@ export class NotesService {
   async create(createNoteDto: CreateNoteDto) {
     try {
       let { heading, note } = createNoteDto;
+      console.log(createNoteDto);
+
       if (!heading || !note) {
         return new BadRequestException('Requires both heading and note');
       }
@@ -55,11 +57,11 @@ export class NotesService {
 
   async findOne(id: string) {
     try {
-      const note = await this.noteModel.findById(id);
-      if (!note) {
+      const notes = await this.noteModel.find({ userId: id });
+      if (!notes) {
         return new BadRequestException('Please check the provided id');
       }
-      return note;
+      return notes;
     } catch (error) {}
   }
 

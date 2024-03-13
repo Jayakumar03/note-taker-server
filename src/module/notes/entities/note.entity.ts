@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import * as mongoose from 'mongoose';
 
 @Schema({
   toJSON: {
@@ -15,6 +15,9 @@ export class Note {
 
   @Prop({ required: true })
   note: string;
+
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true })
+  userId: string;
 }
 
 export const NoteSchema = SchemaFactory.createForClass(Note);

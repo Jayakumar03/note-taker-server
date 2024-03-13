@@ -8,7 +8,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
 import { InjectModel } from '@nestjs/mongoose';
 import * as mongoose from 'mongoose';
-import bcrypt from 'bcrypt';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UserService {
@@ -25,8 +25,7 @@ export class UserService {
       }
 
       let salt = bcrypt.genSaltSync(10);
-      let hash = await bcrypt.hash(createUserDto.password, salt);
-      console.log(hash);
+      let hash = bcrypt.hashSync(createUserDto.password, salt);
 
       const createdUser = await this.userModel.create({
         fullName,
@@ -36,13 +35,13 @@ export class UserService {
       });
 
       if (!createdUser) {
-        return new RequestTimeoutException(
-          'Error while creating note in server',
-        );
+        console.log(createdUser, 'at if');
+        return new Error('Error while creating note in server');
       }
 
       return createdUser;
     } catch (error) {
+      console.error('Error in create method:', error);
       return new RequestTimeoutException('Error while creating note in server');
     }
   }
@@ -50,6 +49,7 @@ export class UserService {
   async login(loginUserDto: UpdateUserDto) {
     try {
       let { email, password } = loginUserDto;
+      console.log(email, password);
 
       if (!email || !password) {
         return new BadRequestException('Requires all the fileds');
@@ -63,7 +63,7 @@ export class UserService {
         );
       }
 
-      let isPasswordCorrect = await bcrypt.compare(
+      let isPasswordCorrect = bcrypt.compareSync(
         loginUserDto.password,
         user[0].password,
       );
@@ -74,19 +74,8 @@ export class UserService {
 
       return user;
     } catch (error) {
+      console.error('Error in create method:', error);
       return new RequestTimeoutException('Error while creating note in server');
     }
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
-  }
-
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} user`;
   }
 }
