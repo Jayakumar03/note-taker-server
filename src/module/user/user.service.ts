@@ -8,6 +8,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
 import { InjectModel } from '@nestjs/mongoose';
 import * as mongoose from 'mongoose';
+import bcrypt from 'bcrypt';
 
 @Injectable()
 export class UserService {
@@ -23,7 +24,16 @@ export class UserService {
         return new BadRequestException('Requires all the fileds');
       }
 
-      const createdUser = await this.userModel.create(createUserDto);
+      let salt = bcrypt.genSaltSync(10);
+      let hash = await bcrypt.hash(createUserDto.password, salt);
+      console.log(hash);
+
+      const createdUser = await this.userModel.create({
+        fullName,
+        email,
+        password: hash,
+        number,
+      });
 
       if (!createdUser) {
         return new RequestTimeoutException(
@@ -47,14 +57,19 @@ export class UserService {
 
       const user = await this.userModel.find({ email: loginUserDto.email });
 
-      if (!user) {
+      if (!user[0]) {
         return new RequestTimeoutException(
           'Error while creating note in server',
         );
       }
 
-      if (user[0].password !== loginUserDto.password) {
-        return new BadRequestException('Incorrect email or password');
+      let isPasswordCorrect = await bcrypt.compare(
+        loginUserDto.password,
+        user[0].password,
+      );
+
+      if (!isPasswordCorrect) {
+        throw new BadRequestException('Incorrect email or password');
       }
 
       return user;
