@@ -69,10 +69,11 @@ export class UserService {
       );
 
       if (!isPasswordCorrect) {
-        throw new BadRequestException('Incorrect email or password');
+        // return new Error("Incorrect email or password")
+        return new BadRequestException('Incorrect email or password');
       }
 
-      return user;
+      return user[0];
     } catch (error) {
       console.error('Error in create method:', error);
       return new RequestTimeoutException('Error while creating note in server');

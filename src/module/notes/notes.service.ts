@@ -61,6 +61,7 @@ export class NotesService {
       if (!notes) {
         return new BadRequestException('Please check the provided id');
       }
+
       return notes;
     } catch (error) {}
   }
